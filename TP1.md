@@ -26,7 +26,7 @@ C'est un corpus multilingue, il contient deux langues : anglais et allemand.
 ## Référence : 
 Introduction to the CoNLL-2003 Shared Task: Language-Independent Named Entity Recognition de Erik F. Tjong Kim Sang, Fien De Meulder
 
-# Partie 2 : projet : Définis les besoins :
+# Partie 2 : projet : 
 ## 1. Besoin
 L'objectif de mon projet est d'examiner les évaluations des produits d'Amazon et d'extraire des informations clés telles que les marques afin d'identifier les préférences des utilisateurs.
 
