@@ -28,36 +28,28 @@ Introduction to the CoNLL-2003 Shared Task: Language-Independent Named Entity Re
 
 # Partie 2 : projet : 
 ## 1. Besoin
-L'objectif de mon projet est d'examiner les évaluations des produits d'Amazon et d'extraire des informations clés telles que les marques afin d'identifier les préférences des utilisateurs.
+L'objectif de mon projet est d'extraire des entités nommées à partir d'un corpus web traitant des produits audio (Head-Fi : https://www.head-fi.org/forums/), plus précisément des casques audio, afin d'identifier les marques, modèles ou catégories de produits les plus fréquemment discutés par les utilisateurs dans le forum.
 
 ## 2. Sujet
-Je décide d'analyse la catégorie `Digital Music` en traitant :
-- L'extraction des entités nommées dans les titres de produits.
-- La distribution des notes selon les marques ou les artistes.
-- Peut-être la relation entre le prix et le note aussi. (pas encore décidé)
+Je décide d'analyse la catégorie casques `Headphones(full-size)` en traitant :
+- L'extraction des entités nommées dans les titres des fils de discussion, qui composés de noms de marques, modèles ou des opinions particulières.
 
 ## 3. Type de tâche
 Extraction des entités nommées
 
 ## 4. Type de données
-J'utilise les métadonnées de la catégoire `Digitial Music`, qui contient : 
-- main_category
-- title
-- average_rating
-- description
-- price
-- images
-- store
-- details
-- etc.
-Je pense que je vais utiliser notamment `title`, `average_rating`, `price`, `store`, `details` pour extaire les informations.
+Comment le site interdit de récupérer les contenus des posts, mon corpus ne contient que : 
+
+- le titre
+- url
+
+Je vais les mettre dans un fichier CSV, qui peut être généré par mon script de scraping.
 
 ## 5. Où je vais récupérer les données
-J'ai trouvé un dataset d'Amazon review qui a plusieurs catégories dont DIgital Music : 
 
-https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023
+Les données viennent de ce site web : https://www.head-fi.org/forums/headphones-full-size.4/
 
-https://amazon-reviews-2023.github.io/
+Et j'ai écrit un scipt Python pour les collecter.
 
 ## 6. Les données sont libre d'accès ? 
-Oui.
+Oui. J'ai déjà vérifier le fichier `robots.txt` du site.
