@@ -15,4 +15,4 @@ Ensuite j'ai séparé mon corpus en trois parties pour que je puisse mieux entra
 - 10% pour la validation
 - 10% pour le test. 
 
-Enfin pour le modèle, j'ai choisi un modèle de `Token classification` sur HuggingFace, qui s'appelle [bert-base-NER](https://huggingface.co/dslim/bert-base-NER). Ce modèle est un modèle de deep learning de classification des entités nommées, il est entraîné sur le corpus `conll2003` et est capable de traiter les données en anglais.
+Enfin pour le modèle, j'ai choisi BERT, en fait j'ai trouvé un modèle qui s'appelle [bert-base-NER](https://huggingface.co/dslim/bert-base-NER). Ce modèle est un modèle de deep learning de classification des entités nommées, il est entraîné sur le corpus `conll2003` et est capable de traiter les données en anglais. Mais il existe des bugs dans mon scripts quand j'utilise ce modèle, je suppose que c'est parce que le modèle est entraîné par 9 labels au total mais les miens sont 3. J'ai donc essayé de changer avec un modèlre plus base et simple.
