@@ -1,6 +1,6 @@
 # Visualisation des données
 
-J'utilise le corpus que j'ai récupéré dans le TP2, sous le format CSV. Mais cette semaine j'ai augmenté la taille à 5000 lignes.
+J'utilise le corpus que j'ai récupéré dans le TP2, sous le format CSV. Mais j'ai augmenté la taille à 25000 lignes pour mieux entraîner le modèle dans les étapes suivantes.
 
 ### 1. Analyse de la longueur des titres
 J'utilise `len()` et `.split()` pour obtenir la longueur des titres. Et puis pour visualiser, je génére un histogramme avec `matplotlib`.
