@@ -12,7 +12,7 @@ base_url = "https://www.head-fi.org/forums/headphones-full-size.4/page-{}"
 output_file = "/home/sibel/Outils-de-traitement-de-corpus/Projet/data/raw/headfi_threads.csv"
 results = []
 
-for page in range(1, 101):  # je parcours les 100 premières pages du forum
+for page in range(1, 501):  # je parcours les 500 premières pages du forum
     url = base_url.format(page)
     print(f"Récupération de la page {page} : {url}")
     # envoyer une requête de GET
