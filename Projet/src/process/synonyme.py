@@ -4,10 +4,10 @@ import nltk
 from nltk.corpus import wordnet
 import os
 
-# Télécharger wordnet dans NLTK
+# Utiliser le dictionnaire de WordNet
 nltk.download('wordnet')
 
-# Fonction d'augmentation : remplacement par synonymes
+# Définition de la fonction d'augmentation par synonymes
 def synonyme(text, n=1):
     words = text.split()
     new_words = words.copy()
@@ -22,19 +22,25 @@ def synonyme(text, n=1):
             new_words = [new_word if w == word_to_replace else w for w in new_words]
     return " ".join(new_words)
 
-# Charger les titres originaux
-df = pd.read_csv("../../data/raw/headfi_threads.csv")
+# Input
+df = pd.read_csv("../../data/clean/headfi_threads_clean.csv")
+df = df.dropna(subset=["title_clean"])
 
-# Supprimer les lignes vides
-df = df.dropna(subset=["title"])
+# Génération d'une version augmentée
+df["title_aug"] = df["title_clean"].apply(lambda x: synonyme(str(x), n=1))
 
-# Créer une nouvelle colonne avec la version augmentée
-df["title_aug"] = df["title"].apply(lambda x: synonyme(str(x), n=1))
+# Je crée deux classes de données : la version originale et la version augmentée
+df_orig = df[["title_clean"]].rename(columns={"title_clean": "text"})
+df_aug = df[["title_aug"]].rename(columns={"title_aug": "text"})
 
-# Sauvegarder le nouveau dataset dans le fichier de data
-os.makedirs("../../data/clean", exist_ok=True)
-df.to_csv("../../data/clean/headfi_augmented.csv", index=False)
+# Ajouter une colonne source
+df_orig["source"] = "original"
+df_aug["source"] = "augmented"
 
-print("Fichier enregistré : headfi_augmented.csv")
-print("Exemple :")
-print(df[["title", "title_aug"]].head())
+# Merge les deux
+df_merged = pd.concat([df_orig, df_aug], ignore_index=True)
+
+# Sauvegarder
+df_merged.to_csv("../../data/clean/headfi_merged.csv", index=False)
+
+print("Fichier enregistré : headfi_merged.csv")
