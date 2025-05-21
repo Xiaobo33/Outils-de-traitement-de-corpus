@@ -10,11 +10,8 @@ J'utilise `len()` et `.split()` pour obtenir la longueur des titres. Et puis pou
 
 - Pour les entités nommées, j'utilise `spacy` (avec en_core_web_sm) pour le tokeniser et identifier les entités nommées. Par exemple ORG (les marques), PRODUCT (les modèles) et PERSON (j'ai pas beaucoup de noms de personnes dans le corpus mais ça peut être intéressant de voir). Pareil que la fréquence des mots, j'utilise `Counter()` pour obtenir les fréquences.
 
-### 3. Augmentation de données
-J'ai augmenté le corpus en remplaçant les mots par synonymes, pour réaliser, j'ai utilisé `nltk.corpus.wordnet` et remplacé les mots par hasard. Mais pour l'instant j'ai pas encore enreigistré les résultats, car je pense que cela change la fréquence des mots.
-
-### 4. Division du corpus
-En utilisant la modèle `sklearn.model_selection.train_test_split()`, j'ai divisé le corpus en 3 datasets : train 60%, test 20%, validation 20%. (Cela peut être modifié plus tard en fonction des performances du modèle).
+### 3. Nuage de mots
+J'utilise `wordcloud` pour générer un nuage des titres, qui est plus compréhensible que le histogramme.
 
 
 Enfin, tous les resulats sont enregistrés dans un dossier `figure`.
