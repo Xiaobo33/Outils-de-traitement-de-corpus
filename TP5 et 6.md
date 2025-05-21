@@ -87,3 +87,5 @@ Le premier résultat anormal était probablement dû à un problème dans la ges
 E pour le second résultat, avec des scores parfaits, est suspect dans un contexte réel, car il est rare qu'un modèle obtienne une performance parfaite sur un jeu de test non vu auparavant. Cela peut indiquer que le jeu de test est trop proche des données d'entraînement, car je n'ai que 3 labels (O, B-ORG, I-ORG), donc le modèle a eu facilité à apprendre à reconnaître ces labels.
 
 En conclusion, je pense que le modèle a été évalué avec succès, et les métriques obtenues montrent une très bonne performance sur le jeu de test fourni. Cependant, il faut d'utiliser un jeu de test plus varié la prochaine fois pour mieux évaluer la généralisation du modèle.
+
+ps : Je n'ai pas mis les models sur Github car ils sont trop volumineux.
