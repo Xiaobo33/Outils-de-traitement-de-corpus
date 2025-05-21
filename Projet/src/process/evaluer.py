@@ -1,14 +1,13 @@
 import numpy as np
-from datasets import Dataset, DatasetDict
+from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForTokenClassification, DataCollatorForTokenClassification, Trainer, TrainingArguments
 import evaluate
+import pandas as pd
 
-################# Définir si on attribue une étiquette à tous les sous-tokens ###############
-label_all_tokens = True  # True : on étiquette tous les sous-tokens ; False : uniquement le premier sous-token
+from collections import Counter
 
-################# Fonction de conversion des labels pour adapter à notre modèle #################
+label_all_tokens = True
 
-# Ici, on remplace "B-BRAND" et "I-BRAND" par "B-ORG" et "I-ORG" car le modèle pré-entraîné utilise ces labels
 def convert_labels(labels):
     new_labels = []
     for label in labels:
@@ -20,27 +19,23 @@ def convert_labels(labels):
             new_labels.append(label)
     return new_labels
 
-################# Définition des labels uniques et des mappings label <-> id #################
+# Les labels après convertir
 unique_labels = ["O", "B-ORG", "I-ORG"]
 label_to_id = {label: i for i, label in enumerate(unique_labels)}
 id_to_label = {i: label for label, i in label_to_id.items()}
 
-################# Chargement du tokenizer et du modèle BERT de base #################
-
-model_name = "bert-base-cased"  # ici, j'utilise le modèle de base mais pas le modèle de NER
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForTokenClassification.from_pretrained(model_name, num_labels=len(unique_labels))
-
-
-################# datasets #################
-import pandas as pd
+model_path = "../../models/results/checkpoint-7482"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForTokenClassification.from_pretrained(model_path, num_labels=len(unique_labels))
 
 def load_and_group(path):
     df = pd.read_csv(path)
-    # Sauter les lignes inutiles
     df = df[df["token"].apply(lambda x: isinstance(x, str) and x.strip() != "text")]
-    df = df[df["label"].apply(lambda x: isinstance(x, str) and x.strip() in {"O", "B-BRAND", "I-BRAND"})]
+    df = df[df["label"].apply(lambda x: isinstance(x, str) and len(x.strip()) > 0)]
     df["sentence_id"] = df["sentence_id"].astype(int)
+
+    ### test : 
+    print("Raw label distribution in dataset:", Counter(df["label"]))
 
     grouped = {
         "tokens": df.groupby("sentence_id")["token"].apply(list).tolist(),
@@ -48,22 +43,20 @@ def load_and_group(path):
     }
     return Dataset.from_dict(grouped)
 
-train_dataset = load_and_group("../../data/clean/train.csv")
-eval_dataset = load_and_group("../../data/clean/val.csv")
+test_dataset = load_and_group("../../data/clean/test.csv")
 
-datasets = DatasetDict({
-    "train": train_dataset,
-    "validation": eval_dataset
-})
-
-################# Tokenization et alignement des labels #################
 def tokenize_and_align_labels(examples):
-    tokenized_inputs = tokenizer(examples["tokens"], truncation=True, is_split_into_words=True)
-
+    tokenized_inputs = tokenizer(examples["tokens"], truncation=True, is_split_into_words=True, padding=True, max_length=128)
     all_labels = examples["labels"]
     new_labels = []
     for i, labels in enumerate(all_labels):
         converted_labels = convert_labels(labels)
+
+        ### test
+        if i < 2:
+            print(f"Original labels: {labels}")
+            print(f"Converted labels: {converted_labels}")
+
         word_ids = tokenized_inputs.word_ids(batch_index=i)
         previous_word_idx = None
         label_ids = []
@@ -76,22 +69,22 @@ def tokenize_and_align_labels(examples):
                 label_ids.append(label_to_id[converted_labels[word_idx]] if label_all_tokens else -100)
             previous_word_idx = word_idx
         new_labels.append(label_ids)
-
     tokenized_inputs["labels"] = new_labels
     return tokenized_inputs
 
-tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
+tokenized_test = test_dataset.map(tokenize_and_align_labels, batched=True)
 
-################# Préparation du data collator #################
 data_collator = DataCollatorForTokenClassification(tokenizer)
 
-################# Chargement de la métrique d'évaluation 'seqeval' #################
 metric = evaluate.load("seqeval")
 
-################# Fonction de calcul des métriques pour le Trainer #################
 def compute_metrics(p):
     predictions, labels = p
     predictions = np.argmax(predictions, axis=2)
+
+    ### test
+    print("Predictions sample:", predictions[0])
+    print("Labels sample:", labels[0])
 
     true_labels = [
         [id_to_label[l] for l in label if l != -100]
@@ -102,6 +95,10 @@ def compute_metrics(p):
         for prediction, label in zip(predictions, labels)
     ]
 
+    ### test
+    print("True labels example:", true_labels[0])
+    print("True predictions example:", true_predictions[0])
+
     results = metric.compute(predictions=true_predictions, references=true_labels)
 
     return {
@@ -111,27 +108,25 @@ def compute_metrics(p):
         "accuracy": results["overall_accuracy"],
     }
 
-################# Configuration des paramètres d'entraînement #################
 training_args = TrainingArguments(
-    output_dir="./results",
-    eval_strategy="epoch",
-    learning_rate=2e-5,
-    per_device_train_batch_size=16,
+    output_dir="./test_output",
     per_device_eval_batch_size=16,
-    num_train_epochs=3,
-    weight_decay=0.01,
+    do_eval=True,
+    logging_dir="./logs",
 )
 
-################# Initialisation du Trainer #################
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=tokenized_datasets["train"],
-    eval_dataset=tokenized_datasets["validation"],
+    eval_dataset=tokenized_test,
     tokenizer=tokenizer,
     data_collator=data_collator,
     compute_metrics=compute_metrics,
 )
 
-################# Lancement de l'entraînement #################
-trainer.train()
+results = trainer.evaluate()
+print(results)
+
+import json
+with open("./test_output/evaluation.json", "w") as f:
+    json.dump(results, f, indent=4)

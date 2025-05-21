@@ -55,3 +55,24 @@ with open("../../figure/NER_100.csv", "w", encoding="utf-8", newline="") as f:
     writer.writerows(freq_ents.most_common(100))
 
 print("Enregistrement de 'NER_100.csv' dans le dossier 'figure'")
+
+# Ajout du nuage de mots
+from wordcloud import WordCloud
+
+wordcloud = WordCloud(
+    width=800,
+    height=400,
+    background_color="white",
+    max_words=100,
+    colormap="viridis"
+).generate_from_frequencies(freq)
+
+# affichage du nuage de mots
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.title("Nuage de mots des titres")
+plt.savefig("../../figure/wordcloud.png")
+plt.close()
+
+print("Enregistrement du fichier 'wordcloud.png' dans le dossier 'figure'")
